@@ -19,18 +19,18 @@
 :root{
   --bg:#f2f6f3; --surface:#ffffff; --ink:#14201b; --muted:#5a6a63; --line:#d7e1db;
   --accent:#0d7357; --accent-ink:#ffffff; --accent-soft:#dbeee5;
-  --ok:#1d8749; --ok-soft:#e0f3e7; --bad:#c03f2b; --bad-soft:#fbe5df; --sun:#e8a317;
+  --ok:#1d8749; --ok-soft:#e0f3e7; --mid:#7cc4a6; --bad:#c03f2b; --bad-soft:#fbe5df; --sun:#e8a317;
   --f-display:"Bricolage Grotesque",ui-sans-serif,system-ui,sans-serif;
   --f-body:"Atkinson Hyperlegible",ui-sans-serif,system-ui,sans-serif;
 }
 @media (prefers-color-scheme:dark){:root:not([data-theme="light"]){
   --bg:#0e1613; --surface:#16211c; --ink:#e6eee9; --muted:#9bb0a6; --line:#29392f;
   --accent:#3fbf93; --accent-ink:#06130e; --accent-soft:#1c392d;
-  --ok:#5fd18f; --ok-soft:#163425; --bad:#ff8a73; --bad-soft:#3c1e18; --sun:#f2b632; color-scheme:dark}}
+  --ok:#5fd18f; --ok-soft:#163425; --mid:#2f8a69; --bad:#ff8a73; --bad-soft:#3c1e18; --sun:#f2b632; color-scheme:dark}}
 :root[data-theme="dark"]{
   --bg:#0e1613; --surface:#16211c; --ink:#e6eee9; --muted:#9bb0a6; --line:#29392f;
   --accent:#3fbf93; --accent-ink:#06130e; --accent-soft:#1c392d;
-  --ok:#5fd18f; --ok-soft:#163425; --bad:#ff8a73; --bad-soft:#3c1e18; --sun:#f2b632; color-scheme:dark}
+  --ok:#5fd18f; --ok-soft:#163425; --mid:#2f8a69; --bad:#ff8a73; --bad-soft:#3c1e18; --sun:#f2b632; color-scheme:dark}
 *{box-sizing:border-box}
 body{background:var(--bg);color:var(--ink);font-family:var(--f-body);font-size:18px;line-height:1.45;-webkit-tap-highlight-color:transparent}
 .wrap{max-width:600px;margin:0 auto;padding-left:max(16px,env(safe-area-inset-left,0px));padding-right:max(16px,env(safe-area-inset-right,0px));padding-block:18px 120px}
@@ -127,6 +127,32 @@ input[type=search]{width:100%;font:inherit;padding:13px 15px;border-radius:14px;
 .stage.done .st{background:var(--accent);color:var(--accent-ink)}
 .stage.lock{opacity:.55}
 .stage .t{flex:1;min-width:0;display:flex;flex-direction:column;gap:6px}
+/* Fortschritt neu */
+.hd{display:flex;justify-content:space-between;align-items:baseline;gap:8px}
+.kpis{display:grid;grid-template-columns:repeat(3,1fr);gap:8px}
+.kpi{background:var(--bg);border-radius:12px;padding:10px 6px;text-align:center;display:flex;flex-direction:column;gap:2px;min-width:0}
+.kpi.card{background:var(--surface);padding:14px 6px}
+.kpi b{font-family:var(--f-display);font-size:1.35rem;line-height:1.1;font-variant-numeric:tabular-nums}
+.kpi b small{font-size:.8rem;color:var(--muted)}
+.kpi span{font-size:.75rem;color:var(--muted);line-height:1.2}
+.chart{display:grid;grid-template-columns:repeat(7,1fr);gap:6px;align-items:end}
+.col{display:flex;flex-direction:column;align-items:center;gap:4px;min-width:0}
+.col .v{font-size:.8rem;font-weight:700;font-variant-numeric:tabular-nums;min-height:1.2em}
+.track{position:relative;width:100%;max-width:36px;height:110px;background:var(--bg);border-radius:8px;overflow:hidden}
+.fill{position:absolute;left:0;right:0;bottom:0;background:var(--mid);border-radius:8px 8px 0 0}
+.fill.full{background:var(--accent)}
+.gm{position:absolute;left:0;right:0;border-top:2px dashed var(--muted);opacity:.7}
+.col .lab{font-size:.8rem;color:var(--muted)}
+.col.now .lab{color:var(--ink);font-weight:700}
+.stack{display:flex;height:16px;border-radius:999px;overflow:hidden;background:var(--line)}
+.stack i{display:block;height:100%}
+.legend{display:grid;grid-template-columns:1fr 1fr;gap:8px 16px}
+.lg{display:flex;align-items:center;gap:8px;font-size:.9rem;min-width:0}
+.lg .sw{width:12px;height:12px;border-radius:4px;flex:0 0 auto}
+.lg b{margin-left:auto;font-variant-numeric:tabular-nums}
+details summary{cursor:pointer;color:var(--accent);font-weight:700;font-size:.9rem}
+.mini-list{display:flex;flex-direction:column;margin-top:8px}
+.mini{display:flex;gap:10px;align-items:center;font-size:.92rem;padding:7px 0;border-top:1px solid var(--line)}
 /* Leiste */
 nav{position:fixed;left:0;right:0;bottom:0;z-index:5;background:var(--surface);border-top:1px solid var(--line);display:flex;justify-content:center;padding-bottom:env(safe-area-inset-bottom,0px);padding-left:env(safe-area-inset-left,0px);padding-right:env(safe-area-inset-right,0px)}
 .tab{flex:1;min-width:0;max-width:150px;background:none;border:0;padding:11px 2px 13px;font:inherit;font-size:.78rem;color:var(--muted);cursor:pointer;display:flex;flex-direction:column;align-items:center;gap:3px}
@@ -313,7 +339,7 @@ const sits=id=>bx(id)>=3;                    // "sitzt" = zweimal an verschieden
 const todayCount=()=>stats.days[today()]||0;
 const doneDay=k=>(stats.days[k]||0)>=stats.goal;
 function streak(){let n=0,d=new Date();if(!doneDay(dkey(d)))d.setDate(d.getDate()-1);while(doneDay(dkey(d))){n++;d.setDate(d.getDate()-1)}return n}
-function tick(){const t=today();stats.days[t]=todayCount()+1;saveStats();if(stats.days[t]===stats.goal)toast("Tagesziel geschafft! 🎉 Brava!")}
+function tick(knew){const t=today();stats.days[t]=todayCount()+1;stats.ans=stats.ans||{};stats.ok=stats.ok||{};stats.ans[t]=(stats.ans[t]||0)+1;if(knew)stats.ok[t]=(stats.ok[t]||0)+1;saveStats();if(stats.days[t]===stats.goal)toast("Tagesziel geschafft! 🎉 Brava!")}
 const stageNeed=k=>Math.ceil(STAGES[k].ids.length*.8);
 const stageHave=k=>STAGES[k].ids.filter(sits).length;
 const stageDone=k=>stageHave(k)>=stageNeed(k);
@@ -434,8 +460,8 @@ function vSession(){
 }
 function answer(knew){
   const id=sess.q[sess.i],before=curStage(),r=prog[id]||{b:1};
-  prog[id]={b:knew?Math.min(5,r.b+1):1,t:today()};
-  store.set("pi2-prog",prog);tick();
+  prog[id]={b:knew?Math.min(5,r.b+1):1,t:today(),w:(r.w||0)+(knew?0:1),n:(r.n||0)+1};
+  store.set("pi2-prog",prog);tick(knew);
   if(knew)sess.ok++;else{sess.again++;if(!sess.re.has(id)){sess.re.add(id);sess.q.push(id)}}
   sess.i++;sess.shown=false;render();
   const after=curStage();if(after>before)setTimeout(()=>toast(`Neue Stufe frei: ${STAGES[after].n} 🎉`),900);
@@ -492,29 +518,74 @@ function vFaelle(){
   $("#pp").onclick=()=>say(s.p);
   $("#ex").onclick=()=>{ci=null;vFaelle()};
   if($("#rd"))$("#rd").onclick=()=>{showDe=true;vFaelle()};
-  app.querySelectorAll(".choice").forEach(b=>b.onclick=()=>{if(choice!==null)return;choice=+b.dataset.k;if(choice===s.r)score++;tick();say(s.c[s.r]);vFaelle()});
+  app.querySelectorAll(".choice").forEach(b=>b.onclick=()=>{if(choice!==null)return;choice=+b.dataset.k;if(choice===s.r)score++;tick(choice===s.r);say(s.c[s.r]);vFaelle()});
   if($("#nx"))$("#nx").onclick=()=>{si++;choice=null;showDe=false;vFaelle();if(si<c.steps.length)say(c.steps[si].p)};
 }
 
 /* ---------- FORTSCHRITT ---------- */
+function bestStreak(){let best=0,cur=0,prev=null;for(const k of Object.keys(stats.days).filter(doneDay).sort()){cur=prev&&dayDiff(prev,k)===1?cur+1:1;best=Math.max(best,cur);prev=k}return best}
 function vFort(){
-  const st=streak(),k=curStage(),all=CARDS.filter(c=>sits(c.id)).length;
-  const cells=[];for(let i=13;i>=0;i--){const d=new Date();d.setDate(d.getDate()-i);const key=dkey(d),n=stats.days[key]||0;cells.push(`<div class="day ${n>=stats.goal?"full":n>0?"half":""} ${i===0?"now":""}" title="${key}: ${n} Karten">${"SMDMDFS"[d.getDay()]}</div>`)}
+  const g=stats.goal,now=new Date(),dow=(now.getDay()+6)%7,ok=stats.ok||{},ans=stats.ans||{};
+  const week=["Mo","Di","Mi","Do","Fr","Sa","So"].map((lab,i)=>{const d=new Date(now);d.setDate(now.getDate()-dow+i);const k=dkey(d);return{lab,k,n:stats.days[k]||0,ok:ok[k]||0,ans:ans[k]||0,fut:i>dow,now:i===dow}});
+  const wN=week.reduce((a,x)=>a+x.n,0),wAns=week.reduce((a,x)=>a+x.ans,0),wOk=week.reduce((a,x)=>a+x.ok,0);
+  const wGoal=week.filter(x=>x.n>=g).length,mx=Math.max(g,...week.map(x=>x.n));
+  const pct=wAns?Math.round(wOk/wAns*100)+" %":"–";
+  let nNew=0,nLearn=0,nSit=0,nFest=0;
+  CARDS.forEach(c=>{const r=prog[c.id];if(!r)nNew++;else if(r.b>=5)nFest++;else if(r.b>=3)nSit++;else nLearn++});
+  const T=CARDS.length,seg=(n,col)=>n?`<i style="width:${n/T*100}%;background:${col}"></i>`:"";
+  const k=curStage(),have=stageHave(k),need=stageNeed(k),last=k===STAGES.length-1;
+  const hard=Object.entries(prog).filter(([id,r])=>C[id]&&(r.w||0)>0).sort((a,b)=>(b[1].w-a[1].w)||(a[1].b-b[1].b)).slice(0,5);
+  const daysAll=Object.values(stats.days).filter(n=>n>0).length;
   app.innerHTML=`<h1>Fortschritt</h1>
-  <div class="pair">
-    <div class="card"><div class="stat">🔥 ${st}</div><div class="note">${st===1?"Tag":"Tage"} in Folge geschafft</div></div>
-    <div class="card"><div class="stat">${all}</div><div class="note">Sätze & Wörter sitzen</div></div>
+
+  <div class="card">
+    <div class="hd"><h2>Diese Woche</h2><span class="note">Ziel: ${g} pro Tag</span></div>
+    <div class="chart" role="img" aria-label="Karten pro Tag diese Woche">${week.map(x=>`<div class="col ${x.now?"now":""}"><span class="v">${x.fut?"":x.n}</span><div class="track"><div class="fill ${x.n>=g?"full":""}" style="height:${x.n/mx*100}%"></div><i class="gm" style="bottom:${g/mx*100}%"></i></div><span class="lab">${x.lab}</span></div>`).join("")}</div>
+    <p class="note">Dunkelgrün = Tagesziel geschafft · gestrichelt = Tagesziel</p>
+    <div class="kpis">
+      <div class="kpi"><b>${wN}</b><span>Karten</span></div>
+      <div class="kpi"><b>${wGoal}<small>/${dow+1}</small></b><span>Tage Ziel geschafft</span></div>
+      <div class="kpi"><b>${pct}</b><span>gewusst</span></div>
+    </div>
   </div>
-  <p class="sec">Letzte 2 Wochen</p>
-  <div class="days">${cells.join("")}</div>
-  <p class="note">Grün = Tagesziel geschafft · hell = angefangen</p>
-  <p class="sec">Stufen</p>
-  ${STAGES.map((S,i)=>{const done=i<k||(i===k&&stageDone(i)),lock=i>k,h=stageHave(i),nd=stageNeed(i);
-    return `<div class="stage ${done?"done":""} ${lock?"lock":""}"><div class="st">${done?"✓":lock?"🔒":i+1}</div><div class="t"><b>${esc(S.n)}</b><span class="note">${esc(S.d)}</span>${lock?"":`<div class="bar"><i style="width:${Math.min(100,h/nd*100)}%"></i></div><span class="note">${h} von ${nd} sitzen${done?" ✓":""}</span>`}</div></div>`}).join("")}
+
+  <div class="card">
+    <div class="hd"><h2>Wortschatz</h2><span class="note">${T} Karten insgesamt</span></div>
+    <div class="stack">${seg(nFest,"var(--accent)")}${seg(nSit,"var(--mid)")}${seg(nLearn,"var(--sun)")}</div>
+    <div class="legend">
+      <div class="lg"><span class="sw" style="background:var(--accent)"></span>Sitzt fest<b>${nFest}</b></div>
+      <div class="lg"><span class="sw" style="background:var(--mid)"></span>Sitzt<b>${nSit}</b></div>
+      <div class="lg"><span class="sw" style="background:var(--sun)"></span>Am Lernen<b>${nLearn}</b></div>
+      <div class="lg"><span class="sw" style="background:var(--line)"></span>Noch neu<b>${nNew}</b></div>
+    </div>
+    <p class="note">„Sitzt“ = an 2 verschiedenen Tagen gewusst. „Sitzt fest“ = 4-mal hintereinander gewusst.</p>
+  </div>
+
+  <div class="card">
+    <div class="hd"><h2>Stufe ${k+1} von ${STAGES.length}</h2><span class="note">${have} von ${need}</span></div>
+    <b>${esc(STAGES[k].n)}</b>
+    <div class="bar"><i style="width:${Math.min(100,have/need*100)}%"></i></div>
+    <p class="note">${last?(have>=need?"Alle Stufen geschafft! 🏆":"Letzte Stufe."):`Noch ${Math.max(0,need-have)} Karten, dann kommt <b>${esc(STAGES[k+1].n)}</b>.`}</p>
+    <details><summary>Alle Stufen anzeigen</summary><div class="mini-list">${STAGES.map((S,i)=>`<div class="mini"><span>${i<k||(i===k&&stageDone(i))?"✅":i===k?"▶️":"🔒"}</span><span style="flex:1">${i+1}. ${esc(S.n)}</span><span class="note">${i>k?"":stageHave(i)+"/"+stageNeed(i)}</span></div>`).join("")}</div></details>
+  </div>
+
+  <div class="card">
+    <div class="hd"><h2>Schwierige Karten</h2></div>
+    ${hard.length?`<div class="list">${hard.map(([id,r])=>`<div class="row"><div class="t"><div class="it">${esc(C[id].it)}</div><div class="de">${esc(C[id].de)}</div><div class="note" style="color:var(--bad);font-weight:700">${r.w}× nochmal</div></div><button class="play" data-id="${id}" aria-label="Vorlesen">${playIcon}</button></div>`).join("")}</div><p class="note">Die kommen beim Üben automatisch öfter dran. Ruhig ein paar Mal anhören.</p>`
+    :`<p class="note">Noch keine. Hier erscheinen die Karten, bei denen du am öftesten „Nochmal“ drückst.</p>`}
+  </div>
+
+  <div class="kpis">
+    <div class="kpi card"><b>🔥 ${streak()}</b><span>Tage in Folge</span></div>
+    <div class="kpi card"><b>🏆 ${bestStreak()}</b><span>Rekord</span></div>
+    <div class="kpi card"><b>📅 ${daysAll}</b><span>Tage geübt</span></div>
+  </div>
+
   <p class="sec">Tagesziel</p>
-  <div class="chips">${[5,10,20].map(n=>`<button class="chip" data-g="${n}" aria-pressed="${stats.goal===n}">${n} Karten${n===5?" · locker":n===10?" · normal":" · fleißig"}</button>`).join("")}</div>
-  <p class="note">Dabei seit ${stats.start.split("-").reverse().join(".")}. Eine Karte „sitzt“, wenn du sie an zwei verschiedenen Tagen gewusst hast.</p>`;
+  <div class="chips">${[5,10,20].map(n=>`<button class="chip" data-g="${n}" aria-pressed="${g===n}">${n} Karten${n===5?" · locker":n===10?" · normal":" · fleißig"}</button>`).join("")}</div>
+  <p class="note">Dabei seit ${stats.start.split("-").reverse().join(".")}.</p>`;
   app.querySelectorAll("[data-g]").forEach(b=>b.onclick=()=>{stats.goal=+b.dataset.g;saveStats();vFort()});
+  app.querySelectorAll(".play[data-id]").forEach(b=>b.onclick=()=>say(C[b.dataset.id].it));
 }
 
 /* ---------- Navigation ---------- */
@@ -561,7 +632,7 @@ idbAll().then(all=>{
   try{
     if(all["pi2-stats"]&&LS.get("pi2-stats")){
       const a=JSON.parse(all["pi2-stats"]),c=JSON.parse(LS.get("pi2-stats"));let m=false;
-      for(const d in (a.days||{}))if((a.days[d]||0)>(c.days[d]||0)){c.days[d]=a.days[d];m=true}
+      for(const f of ["days","ok","ans"]){c[f]=c[f]||{};for(const d in (a[f]||{}))if((a[f][d]||0)>(c[f][d]||0)){c[f][d]=a[f][d];m=true}}
       if(a.start&&a.start<c.start){c.start=a.start;m=true}
       if(m){store.set("pi2-stats",c);changed=true}
     }
